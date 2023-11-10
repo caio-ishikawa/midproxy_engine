@@ -13,24 +13,50 @@ go get github.com/caio-ishikawa/midproxy_engine
 In order to start the proxy server over TLS, a ```.crt``` and a ```.key``` file need to be created in the source directory of the project, and the certificate needs to be added to the OS's trust store. Without this, the MITM certificates would not be accepted by the client.
 
 1. Generate ```.key``` file:
-```openssl genpkey -algorithm RSA -out root.key```
-2. Generate ```.crt``` file:
-```openssl req -new -x509 -key root.key -out root.crt```
-3. Add to trust store:
-*MacOS*
-    ```openssl req -new -x509 -key root.key -out root.crt```
 
-*Debian/Ubuntu*
-    1. Copy root certificate to ca-certificates directory:
-    ```sudo cp root.crt /usr/local/share/ca-certificates/```
-    2. Update the CA certificates:
-    ```sudo update-ca-certificates```
+```sh
+openssl genpkey -algorithm RSA -out root.key
+```
 
-*Fedora/CentOS*
-    1. Copy root certificate to ca-trust/source/achors:
-    ```sudo cp root.crt /etc/pki/ca-trust/source/anchors/```
-    2. Update the CA certificates:
-    ``` sudo update-ca-trust```
+3. Generate ```.crt``` file:
+
+```sh
+openssl req -new -x509 -key root.key -out root.crt
+```
+
+5. Add to trust store:
+
+	#### MacOS
+    - Copy root certificate to keychain:
+
+        ```sh 
+        sudo security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" root.crt
+        ```
+	#### Debian/Ubuntu
+	- Copy root certificate to ca-certificates directory:
+	
+        ```sh
+        sudo cp root.crt /usr/local/share/ca-certificates/
+        ```
+	- Update the CA certificates:
+	
+        ```sh
+        sudo update-ca-certificates
+        ```
+	
+	#### Fedora/CentOS
+
+	- Copy root certificate to ca-trust/source/achors:
+
+		```sh
+        sudo cp root.crt /etc/pki/ca-trust/source/anchors/
+        ```
+
+	- Update the CA certificates:
+    
+		```sh
+        sudo update-ca-trust
+        ```
 
 ### Simple example of intercepting HTTPS request:
 ```go
